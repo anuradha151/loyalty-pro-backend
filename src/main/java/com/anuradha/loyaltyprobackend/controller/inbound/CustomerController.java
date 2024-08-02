@@ -33,6 +33,13 @@ public class CustomerController {
         return customerService.findAll(page, size);
     }
 
+    // TODO - remove
+    @GetMapping("all")
+    public List<CustomerDto> findAll() {
+        return customerService.findAll();
+    }
+
+
     @GetMapping("search")
     public PageDto<CustomerDto> search(@RequestParam String query, @RequestParam int page, @RequestParam int size) {
         return customerService.findAll(query, page, size);

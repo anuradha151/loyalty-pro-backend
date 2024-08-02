@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -54,6 +55,18 @@ public class CustomerService {
                 page,
                 customerRepository.findAll(PageRequest.of(page, size))
         );
+    }
+
+    public List<CustomerDto> findAll() {
+        return customerRepository.findAll().stream()
+                .map(x -> new CustomerDto(
+                        x.getUuid(),
+                        x.getName(),
+                        x.getEmail(),
+                        x.getMobile(),
+                        x.getAddress()
+                ))
+                .toList();
     }
 
     public PageDto<CustomerDto> findAll(String query, int page, int size) {
