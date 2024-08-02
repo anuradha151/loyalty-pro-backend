@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: loyalty-pro-backend
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${DB_DDL_AUTO}
+    show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
