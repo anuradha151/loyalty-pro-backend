@@ -107,4 +107,15 @@ public class CustomerService {
     }
 
 
+    public CustomerDto findById(String uuid) {
+        return customerRepository.findByUuid(uuid)
+                .map(x -> new CustomerDto(
+                        x.getUuid(),
+                        x.getName(),
+                        x.getEmail(),
+                        x.getMobile(),
+                        x.getAddress()
+                ))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
+    }
 }

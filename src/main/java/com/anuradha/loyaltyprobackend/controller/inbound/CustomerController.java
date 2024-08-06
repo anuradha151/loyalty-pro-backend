@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("customer")
+@CrossOrigin
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -33,12 +34,10 @@ public class CustomerController {
         return customerService.findAll(page, size);
     }
 
-    // TODO - remove
-    @GetMapping("all")
-    public List<CustomerDto> findAll() {
-        return customerService.findAll();
+    @GetMapping("{uuid}")
+    public CustomerDto findById(@PathVariable String uuid) {
+        return customerService.findById(uuid);
     }
-
 
     @GetMapping("search")
     public PageDto<CustomerDto> search(@RequestParam String query, @RequestParam int page, @RequestParam int size) {
