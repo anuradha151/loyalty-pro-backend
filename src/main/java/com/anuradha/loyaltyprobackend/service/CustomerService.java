@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,10 +23,26 @@ public class CustomerService {
 
     public void save(CustomerDto dto) {
         validateSaveRequest(dto);
+        customerRepository.findByEmail(dto.getEmail())
+                .ifPresent(customer -> {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+                });
+
+        String cardNumber = dto.getCardNumber();
+        if (dto.getCardNumber() != null && !dto.getCardNumber().isEmpty()) {
+            if (dto.getCardNumber().length() > 6)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card number cannot be more than 6 digits");
+            cardNumber = formatCardNumber(cardNumber);
+            customerRepository.findByCardNumber(cardNumber)
+                    .ifPresent(x -> {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card number already exists");
+                    });
+
+        }
         customerRepository.save(
                 new Customer(
                         UUID.randomUUID().toString(),
-                        dto.getCardNumber(),
+                        cardNumber,
                         dto.getName(),
                         dto.getEmail(),
                         dto.getMobile(),
@@ -40,7 +55,31 @@ public class CustomerService {
         validateSaveRequest(dto);
         Customer customer = customerRepository.findByUuid(dto.getUuid())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
-        customer.setCardNumber(dto.getCardNumber());
+
+        String cardNumber = dto.getCardNumber();
+        if (cardNumber != null && !cardNumber.isEmpty()) {
+
+            if (dto.getCardNumber().length() > 6)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card number cannot be more than 6 digits");
+
+            cardNumber = formatCardNumber(cardNumber);
+
+            if (!customer.getCardNumber().equals(cardNumber))
+                customerRepository.findByCardNumber(cardNumber)
+                        .ifPresent(x -> {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card number already exists");
+                        });
+        }
+
+        if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {
+            customerRepository.findByEmail(dto.getEmail())
+                    .ifPresent(x -> {
+                        if (!x.getUuid().equals(dto.getUuid()))
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists for another customer - " + x.getName());
+                    });
+        }
+
+        customer.setCardNumber(formatCardNumber(dto.getCardNumber()));
         customer.setName(dto.getName());
         customer.setEmail(dto.getEmail());
         customer.setMobile(dto.getMobile());
@@ -79,6 +118,7 @@ public class CustomerService {
         if (dto.getAddress() == null || dto.getAddress().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address is required");
         }
+
     }
 
     private PageDto<CustomerDto> pageToPageDto(int page, Page<Customer> paged) {
@@ -93,7 +133,7 @@ public class CustomerService {
         );
     }
 
-    private CustomerDto toCustomerDto(Customer customer){
+    private CustomerDto toCustomerDto(Customer customer) {
         return new CustomerDto(
                 customer.getUuid(),
                 customer.getCardNumber(),
@@ -102,5 +142,12 @@ public class CustomerService {
                 customer.getMobile(),
                 customer.getAddress()
         );
+    }
+
+    private String formatCardNumber(String cardNumber) {
+        if (cardNumber == null || cardNumber.isEmpty()) {
+            return null;
+        }
+        return String.format("%06d", Integer.parseInt(cardNumber));
     }
 }

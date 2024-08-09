@@ -13,4 +13,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query("SELECT c FROM Customer c WHERE c.name LIKE %?1% OR c.email LIKE %?1% OR c.mobile LIKE %?1% OR c.address LIKE %?1%")
     Page<Customer> search(String query, Pageable pageable);
+
+    Optional<Customer> findByCardNumber(String cardNumber);
+
+    Optional<Customer> findByEmail(String email);
 }

@@ -1,10 +1,13 @@
 package com.anuradha.loyaltyprobackend.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-public class Customer {
+@EntityListeners(AuditingEntityListener.class)
+public class Customer extends Audit{
 
     @Id
     private String uuid;
