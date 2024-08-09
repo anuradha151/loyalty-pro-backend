@@ -8,6 +8,7 @@ public class Customer {
 
     @Id
     private String uuid;
+    private String cardNumber;
     private String name;
     private String email;
     private String mobile;
@@ -16,12 +17,21 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String uuid, String name, String email, String mobile, String address) {
+    public Customer(String uuid, String cardNumber, String name, String email, String mobile, String address) {
         this.uuid = uuid;
+        this.cardNumber = cardNumber;
         this.name = name;
         this.email = email;
         this.mobile = mobile;
         this.address = address;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
 
     public String getUuid() {

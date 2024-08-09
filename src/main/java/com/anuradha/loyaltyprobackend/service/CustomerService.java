@@ -27,25 +27,24 @@ public class CustomerService {
         customerRepository.save(
                 new Customer(
                         UUID.randomUUID().toString(),
+                        dto.getCardNumber(),
                         dto.getName(),
                         dto.getEmail(),
                         dto.getMobile(),
                         dto.getAddress()
                 )
         );
-
     }
 
     public void update(CustomerDto dto) {
         validateSaveRequest(dto);
         Customer customer = customerRepository.findByUuid(dto.getUuid())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
-
+        customer.setCardNumber(dto.getCardNumber());
         customer.setName(dto.getName());
         customer.setEmail(dto.getEmail());
         customer.setMobile(dto.getMobile());
         customer.setAddress(dto.getAddress());
-
         customerRepository.save(customer);
     }
 
@@ -57,23 +56,17 @@ public class CustomerService {
         );
     }
 
-    public List<CustomerDto> findAll() {
-        return customerRepository.findAll().stream()
-                .map(x -> new CustomerDto(
-                        x.getUuid(),
-                        x.getName(),
-                        x.getEmail(),
-                        x.getMobile(),
-                        x.getAddress()
-                ))
-                .toList();
-    }
-
     public PageDto<CustomerDto> findAll(String query, int page, int size) {
         return pageToPageDto(
                 page,
                 customerRepository.search(query, PageRequest.of(page, size))
         );
+    }
+
+    public CustomerDto findById(String uuid) {
+        return customerRepository.findByUuid(uuid)
+                .map(this::toCustomerDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
     }
 
     private void validateSaveRequest(CustomerDto dto) {
@@ -94,28 +87,20 @@ public class CustomerService {
                 paged.getTotalPages(),
                 page,
                 paged.getContent().stream()
-                        .map(x -> new CustomerDto(
-                                x.getUuid(),
-                                x.getName(),
-                                x.getEmail(),
-                                x.getMobile(),
-                                x.getAddress()
-                        ))
+                        .map(this::toCustomerDto)
                         .toList()
 
         );
     }
 
-
-    public CustomerDto findById(String uuid) {
-        return customerRepository.findByUuid(uuid)
-                .map(x -> new CustomerDto(
-                        x.getUuid(),
-                        x.getName(),
-                        x.getEmail(),
-                        x.getMobile(),
-                        x.getAddress()
-                ))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
+    private CustomerDto toCustomerDto(Customer customer){
+        return new CustomerDto(
+                customer.getUuid(),
+                customer.getCardNumber(),
+                customer.getName(),
+                customer.getEmail(),
+                customer.getMobile(),
+                customer.getAddress()
+        );
     }
 }

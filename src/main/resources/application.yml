@@ -2,13 +2,13 @@ spring:
   application:
     name: loyalty-pro-backend
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASS}
+    url: "jdbc:mysql://localhost:3306/loyalty-pro"
+    username: "root"
+    password: "root"
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: ${DB_DDL_AUTO}
+      ddl-auto: "update"
     show-sql: true
   servlet:
     multipart:
